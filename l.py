@@ -27,7 +27,7 @@ def search_and_replace_in_folder(root_folder, old_word, new_word, extensions):
 folder_path = "C:/Users/Lenovo/Desktop/ZenLibrary"
 old_word = "sections"
 new_word = "sections"
-extensions = ['.py', '.html', '.Vue', '.css', '.js']  # Add other extensions as needed
+extensions = ['.py', '.html', '.vue', '.css', '.js']  # Add other extensions as needed
 
 # Perform search and replace
 search_and_replace_in_folder(folder_path, old_word, new_word, extensions)

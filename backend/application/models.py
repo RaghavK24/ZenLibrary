@@ -101,7 +101,7 @@ class Product(db.Model):
         db.DateTime(timezone=True), nullable=False, default=datetime.now())
 
     items = db.relationship("Item", backref="product", cascade="all, delete-orphan")
-    category_id = db.Column(db.Integer, db.ForeignKey("section.id"), nullable=False)
+    section_id = db.Column(db.Integer, db.ForeignKey("section.id"), nullable=False)
 
     def to_dict(self):
         self.image=None
@@ -110,12 +110,12 @@ class Product(db.Model):
             with open(image_file, 'rb') as f:
                 self.image = base64.b64encode(f.read()).decode('utf-8')
         
-        section = Section.query.filter_by(id=self.category_id).first()
+        section = Section.query.filter_by(id=self.section_id).first()
 
         return {
             "id": self.id,
             "name": self.name,
-            "category_name": section.name,
+            "section_name": section.name,
             "description": self.description,
             "unit": self.unit,
             "price": self.price,
@@ -127,7 +127,7 @@ class Product(db.Model):
             "image":self.image,
             "created_timestamp": self.created_timestamp,
             "updated_timestamp": self.updated_timestamp,
-            "category_id": self.category_id,
+            "section_id": self.section_id,
         }
 
 
@@ -209,11 +209,11 @@ def create_initial_data(db):
         updated_timestamp=datetime.now(),
     )
     
-    category_types = [ "Fruits", "Vegetables", "Grocery", "Dairy", "Bakery", "Meat", "Beverages", "Snacks", "Others"]
+    section_types = [ "Fruits", "Vegetables", "Grocery", "Dairy", "Bakery", "Meat", "Beverages", "Snacks", "Others"]
     sections = []
-    for category_type in category_types:
+    for section_type in section_types:
         section = Section(
-            name=category_type,
+            name=section_type,
             request_type="GET",
             request_data="",
             approved=True,

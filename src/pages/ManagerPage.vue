@@ -32,11 +32,11 @@
               </li>
               <li
                 class="nav-item d-inline-flex align-items-center"
-                :class="route.name == 'managercategories' ? 'active' : ''"
+                :class="route.name == 'managersections' ? 'active' : ''"
               >
-                <router-link to="/manager/category" class="nav-link text-white" aria-current="page">
+                <router-link to="/manager/section" class="nav-link text-white" aria-current="page">
                   <mdicon name="shape" class="text-white" />
-                  <span class="ms-2 fs-6">Categories</span>
+                  <span class="ms-2 fs-6">Sections</span>
                 </router-link>
               </li>
               <li

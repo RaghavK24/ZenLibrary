@@ -4,7 +4,7 @@
       <div class="card-header m-0 p-0">
         <div class="row col-10 d-flex justify-content-between align-items-center m-auto my-2">
           <div class="col-auto">
-            <span class="text-center fs-6 fw-normal mt-3">Categories</span>
+            <span class="text-center fs-6 fw-normal mt-3">Sections</span>
           </div>
           <div class="col-10 d-inline-flex justify-content-end m-auto me-0">
             <div class="col-auto mx-2">
@@ -12,7 +12,7 @@
                 <mdicon name="refresh" class="text-black" :size="18" />
                 <span class="ms-1">Refresh</span>
               </button>
-              <button class="btn btn-sm btn-success mx-2" @click="handleCategoryAdd({}, false)">
+              <button class="btn btn-sm btn-success mx-2" @click="handleSectionAdd({}, false)">
                 <mdicon name="shape-square-rounded-plus" class="text-white" :size="18" />
                 <span class="ms-1">Add</span>
               </button>
@@ -25,7 +25,7 @@
           <loading-indicator></loading-indicator>
         </div>
         <div v-else>
-          <div v-if="categories.length > 0">
+          <div v-if="sections.length > 0">
             <div class="row justify-content-center m-auto">
               <div class="p-0 m-0">
                 <div class="table-responsive">
@@ -43,23 +43,23 @@
                     </thead>
                     <tbody>
                       <tr
-                        v-for="(category, idx) in categories"
+                        v-for="(section, idx) in sections"
                         :id="idx"
                         :key="idx"
                         class="align-middle"
                       >
-                        <td>{{ category.id }}</td>
-                        <td v-if="!category.approved && category.request_type == 'edit'">
+                        <td>{{ section.id }}</td>
+                        <td v-if="!section.approved && section.request_type == 'edit'">
                           <s
-                            ><span class="text-danger fw-bold">{{ category.name }}</span></s
+                            ><span class="text-danger fw-bold">{{ section.name }}</span></s
                           >
                           <mdicon name="arrow-right" class="text-black fw-bolder" :size="16" />
-                          <span class="text-success fw-bold">{{ category.request_data }}</span>
+                          <span class="text-success fw-bold">{{ section.request_data }}</span>
                         </td>
-                        <td v-else>{{ category.name }}</td>
-                        <td>{{ formatDate(category.created_timestamp) }}</td>
-                        <td>{{ formatDate(category.updated_timestamp) }}</td>
-                        <td v-if="category.approved == true">
+                        <td v-else>{{ section.name }}</td>
+                        <td>{{ formatDate(section.created_timestamp) }}</td>
+                        <td>{{ formatDate(section.updated_timestamp) }}</td>
+                        <td v-if="section.approved == true">
                           <span>
                             <mdicon name="check-circle" class="text-success" :size="16" />
                           </span>
@@ -73,7 +73,7 @@
                         </td>
                         <td>
                           <span>
-                            <span v-html="getCategoryType(category)"></span>
+                            <span v-html="getSectionType(section)"></span>
                           </span>
                         </td>
                         <td>
@@ -89,7 +89,7 @@
                               <a
                                 class="dropdown-item"
                                 href="javascript: void(0)"
-                                @click="handleCategoryAdd(category, true)"
+                                @click="handleSectionAdd(section, true)"
                               >
                                 <!-- <b><mdicon name="shape-square-rounded-plus" class="text-indian-red" :size="16"/></b> -->
                                 <svg
@@ -110,21 +110,21 @@
                               </a>
                             </li>
                             <div v-if="role == 'admin'">
-                              <li v-if="!category.approved">
+                              <li v-if="!section.approved">
                                 <a
                                   class="dropdown-item"
                                   href="javascript: void(0)"
-                                  @click="handleCategoryApprove(category, true)"
+                                  @click="handleSectionApprove(section, true)"
                                 >
                                   <mdicon name="check-circle" class="text-success" :size="20" />
                                   Approve
                                 </a>
                               </li>
-                              <li v-if="!category.approved">
+                              <li v-if="!section.approved">
                                 <a
                                   class="dropdown-item"
                                   href="javascript: void(0)"
-                                  @click="handleCategoryApprove(category, false)"
+                                  @click="handleSectionApprove(section, false)"
                                 >
                                   <mdicon name="close-circle" class="text-warning" :size="20" />
                                   Reject
@@ -140,7 +140,7 @@
                               name="close-circle"
                               :size="20"
                               class="text-danger p-1"
-                              @click="handleCategoryDelete(category.id)"
+                              @click="handleSectionDelete(section.id)"
                             />
                           </button>
                         </td>
@@ -152,7 +152,7 @@
             </div>
           </div>
           <div v-else>
-            <h4 class="text-center mt-1">No Categories. Add one!</h4>
+            <h4 class="text-center mt-1">No Sections. Add one!</h4>
           </div>
         </div>
       </div>
@@ -161,10 +161,10 @@
 
   <!-- Modal Windows -->
 
-  <!-- Add/Edit Category -->
+  <!-- Add/Edit Section -->
   <div
     class="modal fade"
-    id="modalCategory"
+    id="modalSection"
     data-bs-backdrop="static"
     data-bs-keyboard="false"
     tabindex="-1"
@@ -174,8 +174,8 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 v-if="!edit" class="modal-title fs-5" id="staticBackdropLabel">Add Category</h1>
-          <h1 v-else class="modal-title fs-5" id="staticBackdropLabel">Update Category</h1>
+          <h1 v-if="!edit" class="modal-title fs-5" id="staticBackdropLabel">Add Section</h1>
+          <h1 v-else class="modal-title fs-5" id="staticBackdropLabel">Update Section</h1>
           <button
             type="button"
             class="btn-close"
@@ -185,7 +185,7 @@
         </div>
         <div class="modal-body">
           <form
-            @submit.prevent="handleCategoryModalEdit"
+            @submit.prevent="handleSectionModalEdit"
             needs-validation
             novalidate
             :class="{ 'was-validated': wasValidated }"
@@ -200,9 +200,9 @@
                 v-model="data.name"
                 required
               />
-              <label for="floatingInput">Category</label>
+              <label for="floatingInput">Section</label>
               <div class="invalid-feedback">
-                <span>Category name cannot be empty</span>
+                <span>Section name cannot be empty</span>
               </div>
             </div>
             <div class="modal-footer text-center">
@@ -221,7 +221,7 @@
               <button
                 type="button"
                 class="btn btn-sm btn-danger"
-                id="categoryModalClose"
+                id="sectionModalClose"
                 data-bs-dismiss="modal"
               >
                 <mdicon name="window-close" class="text-white" :size="18" />
@@ -241,12 +241,12 @@
     </div>
   </div>
 
-  <!-- Delete Category -->
-  <div class="modal fade" id="modalCategoryDelete" role="dialog" tabindex="-1">
+  <!-- Delete Section -->
+  <div class="modal fade" id="modalSectionDelete" role="dialog" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Delete Category</h5>
+          <h5 class="modal-title">Delete Section</h5>
           <button
             type="button"
             class="btn-close"
@@ -255,12 +255,12 @@
           ></button>
         </div>
         <div class="modal-body">
-          <p>This will delete the category and all the products under this</p>
+          <p>This will delete the section and all the products under this</p>
           <p>This action is irreversible</p>
           <p>Are you sure you want to do this?</p>
         </div>
         <div class="modal-footer">
-          <button @click="handleCategoryModalDelete" type="button" class="btn btn-danger">
+          <button @click="handleSectionModalDelete" type="button" class="btn btn-danger">
             <span v-if="loading" class="spinner-border spinner-border-sm"></span>
             <span v-else><mdicon name="delete" class="text-white" :size="16" /></span>
             Delete
@@ -287,7 +287,7 @@ const auth = useAuthStore()
 
 // data
 const role = ref(auth.user.role)
-const categories = ref([])
+const sections = ref([])
 const errordata = reactive({
   isError: false,
   msg: ''
@@ -314,31 +314,31 @@ const data = reactive({
   id: 0,
   name: ''
 })
-const category_name = ref('') //keep a copy of the category name during the modal
+const section_name = ref('') //keep a copy of the section name during the modal
 const edit = ref(false)
 const wasValidated = ref(false)
 
 // Main Functions
 onMounted(async () => {
-  // refreshCategories()
+  // refreshSections()
 
-  modal = new Modal(document.getElementById('modalCategory'), {
+  modal = new Modal(document.getElementById('modalSection'), {
     keyboard: false
   })
 
-  modalDelete = new Modal(document.getElementById('modalCategoryDelete'), {
+  modalDelete = new Modal(document.getElementById('modalSectionDelete'), {
     keyboard: false
   })
 })
 
-function getCategoryType(category) {
-  if (category.approved) return '<span class="badge rounded-pill bg-secondary"><b>OK</b></span>'
+function getSectionType(section) {
+  if (section.approved) return '<span class="badge rounded-pill bg-secondary"><b>OK</b></span>'
   else {
-    if (category.request_type == 'add') {
+    if (section.request_type == 'add') {
       return '<span class="badge rounded-pill bg-success"><b>ADD</b></span>'
-    } else if (category.request_type == 'edit') {
+    } else if (section.request_type == 'edit') {
       return '<span class="badge rounded-pill text-dark bg-warning"><b>EDIT</b></span>'
-    } else if (category.request_type == 'delete') {
+    } else if (section.request_type == 'delete') {
       return '<span class="badge rounded-pill bg-danger"><b>DELETE</b></span>'
     } else {
       return ''
@@ -346,13 +346,13 @@ function getCategoryType(category) {
   }
 }
 
-async function refreshCategories() {
-  console.log('refreshing categories')
+async function refreshSections() {
+  console.log('refreshing sections')
   main_loading.value = true
   try {
-    const resp = await axiosClient.get('/api/category')
+    const resp = await axiosClient.get('/api/section')
     console.log(resp)
-    categories.value = resp.data
+    sections.value = resp.data
   } catch (err) {
     console.log('Error: ', err)
   } finally {
@@ -361,46 +361,46 @@ async function refreshCategories() {
 }
 
 const refresh = async () => {
-  await refreshCategories()
+  await refreshSections()
 }
 
-async function handleCategoryApprove(category, approve) {
+async function handleSectionApprove(section, approve) {
   loading.value = true
 
   try {
-    if (category.request_type == 'edit') {
+    if (section.request_type == 'edit') {
       const formData = new FormData()
-      formData.append('name', category.name)
+      formData.append('name', section.name)
       formData.append('approved', approve)
       console.log(formData)
-      const resp = await axiosClient.put(`/api/category/${category.id}`, formData)
+      const resp = await axiosClient.put(`/api/section/${section.id}`, formData)
       console.log(resp)
-    } else if (category.request_type == 'add') {
+    } else if (section.request_type == 'add') {
       if (approve) {
         const formData = new FormData()
-        formData.append('name', category.name)
+        formData.append('name', section.name)
         formData.append('approved', approve)
         console.log(formData)
-        const resp = await axiosClient.put(`/api/category/${category.id}`, formData)
+        const resp = await axiosClient.put(`/api/section/${section.id}`, formData)
         console.log(resp)
       } else {
-        const resp = await axiosClient.delete(`/api/category/${category.id}`)
+        const resp = await axiosClient.delete(`/api/section/${section.id}`)
         console.log(resp)
       }
     } else {
       if (!approve) {
         const formData = new FormData()
-        formData.append('name', category.name)
+        formData.append('name', section.name)
         formData.append('approved', false)
         console.log(formData)
-        const resp = await axiosClient.put(`/api/category/${category.id}`, formData)
+        const resp = await axiosClient.put(`/api/section/${section.id}`, formData)
         console.log(resp)
       } else {
-        const resp = await axiosClient.delete(`/api/category/${category.id}`)
+        const resp = await axiosClient.delete(`/api/section/${section.id}`)
         console.log(resp)
       }
     }
-    refreshCategories()
+    refreshSections()
   } catch (err) {
     console.log(err)
   } finally {
@@ -408,18 +408,18 @@ async function handleCategoryApprove(category, approve) {
   }
 }
 
-function handleCategoryAdd(category, isEdit) {
-  console.log('Add/Edit Category:', category)
+function handleSectionAdd(section, isEdit) {
+  console.log('Add/Edit Section:', section)
 
   errordata.isError = false
   errordata.msg = ''
   wasValidated.value = false
   errors.name = false
 
-  category_name.value = category.name
+  section_name.value = section.name
   if (isEdit) {
-    data.id = category.id
-    data.name = category.name
+    data.id = section.id
+    data.name = section.name
   } else {
     data.id = 0
     data.name = ''
@@ -429,8 +429,8 @@ function handleCategoryAdd(category, isEdit) {
   modal.show()
 }
 
-const handleCategoryDelete = async (id) => {
-  console.log('Delete Category:', id)
+const handleSectionDelete = async (id) => {
+  console.log('Delete Section:', id)
   errordata.isError = false
   errordata.msg = ''
 
@@ -439,14 +439,14 @@ const handleCategoryDelete = async (id) => {
 }
 
 // Modal Functions
-async function handleCategoryModalEdit() {
+async function handleSectionModalEdit() {
   wasValidated.value = false
   errordata.isError = false
   errordata.msg = ''
 
   if (data.name === '') {
     errordata.isError = true
-    errordata.msg = 'Category name cannot be empty'
+    errordata.msg = 'Section name cannot be empty'
     errors.name = true
     return
   }
@@ -455,7 +455,7 @@ async function handleCategoryModalEdit() {
 
   const formData = new FormData()
   if (edit.value) {
-    formData.append('name', category_name.value)
+    formData.append('name', section_name.value)
     formData.append('request_type', 'edit')
   } else {
     formData.append('name', data.name)
@@ -466,14 +466,14 @@ async function handleCategoryModalEdit() {
   loading.value = true
   let resp = {}
   try {
-    if (edit.value) resp = await axiosClient.put(`/api/category/${data.id}`, formData)
-    else resp = await axiosClient.post('/api/category', formData)
+    if (edit.value) resp = await axiosClient.put(`/api/section/${data.id}`, formData)
+    else resp = await axiosClient.post('/api/section', formData)
 
     console.log(resp)
     console.log('modal: closing modal')
-    document.getElementById('categoryModalClose').click()
+    document.getElementById('sectionModalClose').click()
     modal.hide()
-    refreshCategories()
+    refreshSections()
   } catch (err) {
     console.log(err)
     errordata.isError = true
@@ -487,17 +487,17 @@ async function handleCategoryModalEdit() {
   }
 }
 
-async function handleCategoryModalDelete() {
-  console.log('modal:Delete Category')
+async function handleSectionModalDelete() {
+  console.log('modal:Delete Section')
 
   loading.value = true
   try {
-    const resp = await axiosClient.delete(`/api/category/${data.id}`)
+    const resp = await axiosClient.delete(`/api/section/${data.id}`)
     console.log(resp)
     console.log('modal: closing modal')
-    document.getElementById('categoryModalClose').click()
+    document.getElementById('sectionModalClose').click()
     modal.hide()
-    refreshCategories()
+    refreshSections()
   } catch (err) {
     console.log(err)
     errordata.isError = true
@@ -510,10 +510,10 @@ async function handleCategoryModalDelete() {
   }
 
   modalDelete.hide()
-  refreshCategories()
+  refreshSections()
 }
 
-await refreshCategories()
+await refreshSections()
 </script>
 
 <style scoped>

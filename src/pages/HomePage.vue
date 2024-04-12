@@ -29,11 +29,11 @@
                 <select
                   class="form-select me-3"
                   aria-label="Default select example"
-                  @change="onCategoryChange($event)"
+                  @change="onSectionChange($event)"
                 >
                   <option value="all" selected>All</option>
-                  <option v-for="category in categories" :key="category.id" :value="category.name">
-                    {{ category.name }}
+                  <option v-for="section in sections" :key="section.id" :value="section.name">
+                    {{ section.name }}
                   </option>
                 </select>
               </div>
@@ -46,7 +46,7 @@
             </div>
             <div v-if="!show_products.length">
               <h5 class="text-center mt-5">No products found!</h5>
-              <p class="text-center">Select diffent Category product from the drop down.</p>
+              <p class="text-center">Select diffent Section product from the drop down.</p>
             </div>
             <div v-else>
               <div
@@ -77,7 +77,7 @@ import { useAuthStore } from '../stores/authstore'
 
 const products = ref([])
 const show_products = ref([])
-const categories = ref([])
+const sections = ref([])
 const loading = ref(true)
 
 onMounted(() => {
@@ -98,7 +98,7 @@ async function fetchData() {
   try {
     const resp = await axiosClient.get('/home')
     console.log(resp)
-    categories.value = resp.data[0]
+    sections.value = resp.data[0]
     products.value = resp.data[1]
     show_products.value = products.value
 
@@ -114,12 +114,12 @@ async function fetchData() {
   }
 }
 
-const onCategoryChange = (event) => {
+const onSectionChange = (event) => {
   console.log(event.target.value)
   if (event.target.value === 'all') {
     show_products.value = products.value
   } else {
-    show_products.value = products.value.filter((x) => x.category_name === event.target.value)
+    show_products.value = products.value.filter((x) => x.section_name === event.target.value)
   }
   show_products.value.sort((a, b) => new Date(a.updated_timestamp) < new Date(b.updated_timestamp))
 }

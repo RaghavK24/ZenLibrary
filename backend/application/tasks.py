@@ -134,7 +134,7 @@ def send_csv_report(username):
         f.writerow(["Name", "Description","Section", "Price", "Total Stock", "Stock Available", "Stock Sold"])
         for product in products:
             product_dict = product.to_dict()
-            f.writerow([product.name, product.description,product_dict['category_name'], product.price, product.stock, product.stock_available, product.stock_sold])
+            f.writerow([product.name, product.description,product_dict['section_name'], product.price, product.stock, product.stock_available, product.stock_sold])
         f.writerow(["", "Generated at",timestamp, "", "Butti Admin", "", ""])
 
     # return report_filename

@@ -24,7 +24,7 @@
     </div>
     <!-- <pre>{{ query }}</pre>
     <pre> search results: {{ search_results }}</pre>
-    <pre> categories products: {{ categories }}</pre>
+    <pre> sections products: {{ sections }}</pre>
     <pre> product search: {{ products }}</pre> -->
   </main-layout>
 </template>
@@ -45,7 +45,7 @@ const props = defineProps({
 const { query } = toRefs(props)
 const loading = ref(true)
 const search_results = ref([])
-const categories = ref([])
+const sections = ref([])
 const products = ref([])
 
 onMounted(async () => {
@@ -54,9 +54,9 @@ onMounted(async () => {
   try {
     const resp = await axiosClient.get('/search', { params: { query: query.value } })
     console.log(resp)
-    categories.value = resp.data[0] || []
+    sections.value = resp.data[0] || []
     products.value = resp.data[1] || []
-    search_results.value = [...categories.value, ...products.value]
+    search_results.value = [...sections.value, ...products.value]
   } catch (err) {
     console.log(err)
   } finally {

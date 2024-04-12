@@ -81,13 +81,13 @@ def admin():
     data["orders"] = orders_data
 
     # section wise products
-    category_data = []
+    section_data = []
     sections = Section.query.all()
     for section in sections:
-        category_dict = section.to_dict()
-        category_data.append({'name':category_dict['name'], 'count': len(section.products)})
-        # category_data.append(([section.to_dict(), len(section.products)]))
-    data["sections"] = category_data
+        section_dict = section.to_dict()
+        section_data.append({'name':section_dict['name'], 'count': len(section.products)})
+        # section_data.append(([section.to_dict(), len(section.products)]))
+    data["sections"] = section_data
 
     #Revenue from past 7 days
     revenue_data = []
@@ -123,13 +123,13 @@ def manager():
     data["orders"] = orders_data
 
     # section wise products
-    category_data = []
+    section_data = []
     sections = Section.query.all()
     for section in sections:
-        category_dict = section.to_dict()
-        category_data.append({'name':category_dict['name'], 'count': len(section.products)})
-        # category_data.append(([section.to_dict(), len(section.products)]))
-    data["sections"] = category_data
+        section_dict = section.to_dict()
+        section_data.append({'name':section_dict['name'], 'count': len(section.products)})
+        # section_data.append(([section.to_dict(), len(section.products)]))
+    data["sections"] = section_data
 
     #Revenue from past 7 days
     revenue_data = []
@@ -190,12 +190,12 @@ def search():
             and_(Section.approved == True , Section.name.ilike("%" + query + "%"))
             ).all()
 
-        category_products = []
+        section_products = []
         print(sections)
         for section in sections:
-            category_products.extend([product for product in section.products if product.expiry_date >= datetime.now()])
-            print(category_products)
-            # category_products.extend(filter( lambda x: x.expiry_date >= datetime.now(), sections.products))
+            section_products.extend([product for product in section.products if product.expiry_date >= datetime.now()])
+            print(section_products)
+            # section_products.extend(filter( lambda x: x.expiry_date >= datetime.now(), sections.products))
 
         products = Product.query.filter(
             and_(Product.expiry_date >= datetime.now() ,
@@ -206,7 +206,7 @@ def search():
             Product.price.ilike("%" + query + "%")))
             ).all()
 
-        data = jsonify([category_product.to_dict() for category_product in category_products],
+        data = jsonify([section_product.to_dict() for section_product in section_products],
                        [product.to_dict() for product in products])
         return make_response(data, 200)
 

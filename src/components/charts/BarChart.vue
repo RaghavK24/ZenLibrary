@@ -15,9 +15,9 @@
 <script setup>
 import { toRefs, ref } from 'vue'
 import { Bar } from 'vue-chartjs'
-import { Chart as ChartJS, Title, Tooltip, Legend, BarController, CategoryScale, LinearScale, BarElement, ArcElement } from 'chart.js'
+import { Chart as ChartJS, Title, Tooltip, Legend, BarController, SectionScale, LinearScale, BarElement, ArcElement } from 'chart.js'
 
-ChartJS.register( Title, Tooltip, Legend, BarController, CategoryScale, LinearScale, BarElement, ArcElement)
+ChartJS.register( Title, Tooltip, Legend, BarController, SectionScale, LinearScale, BarElement, ArcElement)
 
 const props = defineProps({
     title: {

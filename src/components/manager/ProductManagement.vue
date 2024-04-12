@@ -10,7 +10,7 @@
             <div class="col-auto mx-2">
               <button
                 class="btn btn-sm btn-secondary mx-2"
-                v-show="categories.length > 0"
+                v-show="sections.length > 0"
                 @click="refresh"
               >
                 <mdicon name="refresh" class="text-dark" :size="18" />
@@ -18,7 +18,7 @@
               </button>
               <button
                 class="btn btn-sm btn-success"
-                v-show="categories.length > 0"
+                v-show="sections.length > 0"
                 @click="handleProductAdd({}, false)"
               >
                 <b><mdicon name="shape-square-rounded-plus" class="text-white" :size="18" /></b>
@@ -69,7 +69,7 @@
                             <span class="d-inline-block align-items-center">
                               <span>{{ product.name }}</span>
                               <br />
-                              <small>{{ product.category_name }}</small>
+                              <small>{{ product.section_name }}</small>
                             </span>
                           </div>
                         </td>
@@ -151,11 +151,11 @@
             </div>
           </div>
           <div v-else>
-            <div v-if="categories.length === 0" class="row col-12">
+            <div v-if="sections.length === 0" class="row col-12">
               <p class="text-center mt-1">
-                No Categories. Atleast one category should be added before adding a product
+                No Sections. Atleast one section should be added before adding a product
               </p>
-              <p class="text-center mt-1">Click <b>here</b> go to category page and add one!</p>
+              <p class="text-center mt-1">Click <b>here</b> go to section page and add one!</p>
             </div>
             <div v-else class="row col-12">
               <h4 class="text-center mt-1">No Products. Add one!</h4>
@@ -168,7 +168,7 @@
 
   <!-- Modal Windows -->
 
-  <!-- Add/Edit Category -->
+  <!-- Add/Edit Section -->
   <div
     class="modal fade"
     id="modalProduct"
@@ -230,15 +230,15 @@
             <div class="form-floating mb-3">
               <select
                 class="form-select"
-                id="productCategory"
-                aria-label="Category"
-                v-model="category_id"
+                id="productSection"
+                aria-label="Section"
+                v-model="section_id"
               >
-                <option v-for="category in data.categories" :key="category.id" :value="category.id">
-                  {{ category.name }}
+                <option v-for="section in data.sections" :key="section.id" :value="section.id">
+                  {{ section.name }}
                 </option>
               </select>
-              <label for="productCategory">Category</label>
+              <label for="productSection">Section</label>
             </div>
             <div class="form-floating mb-3">
               <select
@@ -432,7 +432,7 @@ import { Modal } from 'bootstrap'
 import LoadingIndicator from '@/components/LoadingIndicator.vue'
 
 // data
-const categories = ref([])
+const sections = ref([])
 const products = ref([])
 const errordata = reactive({
   isError: false,
@@ -467,9 +467,9 @@ const data = reactive({
   image: null,
   created_timestamp: '',
   updated_timestamp: '',
-  categories: []
+  sections: []
 })
-const category_id = ref(1)
+const section_id = ref(1)
 const edit = ref(false)
 
 // main function
@@ -477,7 +477,7 @@ async function refreshData() {
   console.log('Refreshing data...')
   main_loading.value = true
   try {
-    await refreshCategories()
+    await refreshSections()
     await refreshProducts()
   } catch (err) {
     console.log(err)
@@ -524,12 +524,12 @@ async function refreshProducts() {
   }
 }
 
-async function refreshCategories() {
-  console.log('refreshing categories')
+async function refreshSections() {
+  console.log('refreshing sections')
   try {
-    const resp = await axiosClient.get('/api/category')
-    categories.value = resp.data
-    categories.value = categories.value.filter((category) => category.approved == true)
+    const resp = await axiosClient.get('/api/section')
+    sections.value = resp.data
+    sections.value = sections.value.filter((section) => section.approved == true)
   } catch (err) {
     console.log('Error: ', err)
   }
@@ -552,10 +552,10 @@ function handleProductAdd(product, isEdit) {
     data.image = product.image
     data.created_timestamp = product.created_timestamp
     data.updated_timestamp = product.updated_timestamp
-    for (const category of categories.value) {
-      data.categories.push(category)
+    for (const section of sections.value) {
+      data.sections.push(section)
     }
-    category_id.value=product.category_id
+    section_id.value=product.section_id
   } else {
     data.id = 0
     data.name = ''
@@ -568,9 +568,9 @@ function handleProductAdd(product, isEdit) {
     data.image = null
     data.created_timestamp = ''
     data.updated_timestamp = ''
-    data.categories = []
-    for (const category of categories.value) {
-      data.categories.push(category)
+    data.sections = []
+    for (const section of sections.value) {
+      data.sections.push(section)
     }
   }
   edit.value = isEdit
@@ -598,7 +598,7 @@ const handleViewDescription = (product) => {
 const handleProductDelete = async (product) => {
   console.log('Delete Product:', product.id)
   data.id = product.id
-  category_id.value = product.category_id
+  section_id.value = product.section_id
   modalDelete.show()
 }
 
@@ -681,8 +681,8 @@ async function handleProductModalEdit() {
   let resp = {}
   try {
     if (edit.value)
-      resp = await axiosClient.put(`/api/product/${category_id.value}/${data.id}`, formData)
-    else resp = await axiosClient.post(`/api/product/${category_id.value}`, formData)
+      resp = await axiosClient.put(`/api/product/${section_id.value}/${data.id}`, formData)
+    else resp = await axiosClient.post(`/api/product/${section_id.value}`, formData)
 
     console.log(resp)
     console.log('modal: closing modal')
@@ -709,7 +709,7 @@ async function handleProductModalDelete() {
 
   loading.value = true
   try {
-    const resp = await axiosClient.delete(`/api/product/${category_id.value}/${data.id}`)
+    const resp = await axiosClient.delete(`/api/product/${section_id.value}/${data.id}`)
     console.log(resp)
     console.log('modal: closing modal')
     document.getElementById('productModalClose').click()

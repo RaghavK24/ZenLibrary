@@ -6,7 +6,7 @@
         :src="`data:image/png;base64,${data.image}`"
         alt="product image"
         height="150"
-        @click="() => $router.push(`/product/${data.category_id}/${data.id}`)"
+        @click="() => $router.push(`/product/${data.section_id}/${data.id}`)"
       />
       <div class="card-body">
         <div class="row justify-content-between">

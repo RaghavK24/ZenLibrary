@@ -285,22 +285,22 @@ class UserAPI(Resource):
         return f"user {user.name} deleted successfully", 200
 
 
-category_request_parse = reqparse.RequestParser(bundle_errors=True)
-category_request_parse.add_argument("name", type=str, required=True)
-category_request_parse.add_argument("approved", type=inputs.boolean)
-category_request_parse.add_argument("request_type", type=str)
-category_request_parse.add_argument("request_data", type=str)
-class CategoryAPI(Resource):
+section_request_parse = reqparse.RequestParser(bundle_errors=True)
+section_request_parse.add_argument("name", type=str, required=True)
+section_request_parse.add_argument("approved", type=inputs.boolean)
+section_request_parse.add_argument("request_type", type=str)
+section_request_parse.add_argument("request_data", type=str)
+class SectionAPI(Resource):
     '''Section Object for managing sections'''
     @jwt_required()
     @cache.cached(timeout=50)
-    def get(self, category_id=None):
-        if category_id is None:
+    def get(self, section_id=None):
+        if section_id is None:
             sections = Section.query.all()
             data = [section.to_dict() for section in sections]
             return make_response(data, 200)
         else:
-            section = Section.query.filter_by(id=category_id).one_or_none()
+            section = Section.query.filter_by(id=section_id).one_or_none()
             if section is None:
                 raise NotFound("section not found")
             else:
@@ -322,7 +322,7 @@ class CategoryAPI(Resource):
         else:
             approved = False
 
-        args = category_request_parse.parse_args(strict=True)
+        args = section_request_parse.parse_args(strict=True)
         name = args.get("name", None)
         if name is None:
             raise BadRequest("name not provided")
@@ -356,7 +356,7 @@ class CategoryAPI(Resource):
         return make_response(section.to_dict(), 201)
 
     @jwt_required()
-    def put(self, category_id):
+    def put(self, section_id):
         user_id = get_jwt_identity()
         if user_id is None:
             raise NotFound("user id is missing in token")
@@ -364,14 +364,14 @@ class CategoryAPI(Resource):
         if user is None:
             raise NotFound("user not found")
 
-        if category_id is None:
+        if section_id is None:
             raise NotFound("section id is missing")
 
-        section = Section.query.filter_by(id=category_id).first()
+        section = Section.query.filter_by(id=section_id).first()
         if section is None:
             return NotFound("section not found")
         else:
-            args = category_request_parse.parse_args(strict=True)
+            args = section_request_parse.parse_args(strict=True)
             # print(args)
 
             name = args.get("name", None)
@@ -434,7 +434,7 @@ class CategoryAPI(Resource):
             return make_response(jsonify(section.to_dict()), 200)
 
     @jwt_required()
-    def delete(self, category_id):
+    def delete(self, section_id):
         if id is None:
             raise BadRequest("section id is missing")
 
@@ -446,7 +446,7 @@ class CategoryAPI(Resource):
             if user is None:
                 raise NotFound("user not found")
 
-        section = Section.query.filter_by(id=category_id).first()
+        section = Section.query.filter_by(id=section_id).first()
         if section is None:
             raise NotFound(message="section not found")
 
@@ -493,22 +493,22 @@ class ProductAPI(Resource):
     '''Product Object for managing products'''
 
     @cache.cached(timeout=50)
-    def get(self, category_id=None, product_id=None):
-        if category_id is None:
+    def get(self, section_id=None, product_id=None):
+        if section_id is None:
             products = Product.query.all()
             data = [product.to_dict() for product in products]
             return make_response(data, 200)
         else:
-            section=Section.query.filter_by(id=category_id).first()
+            section=Section.query.filter_by(id=section_id).first()
             if section is None:
                 raise NotFound("Section not found")
 
         if product_id is None:
-            products = Product.query.filter_by(category_id=category_id).all()
+            products = Product.query.filter_by(section_id=section_id).all()
             data = [product.to_dict() for product in products]
             return make_response(data, 200)
         else:
-            product = Product.query.filter_by(category_id=section.id, id=product_id).first()
+            product = Product.query.filter_by(section_id=section.id, id=product_id).first()
             if product is None:
                 raise NotFound("Product not found")
             else:
@@ -516,11 +516,11 @@ class ProductAPI(Resource):
                 return make_response(data, 200)
 
     @jwt_required()
-    def post(self, category_id):
-        if category_id is None:
+    def post(self, section_id):
+        if section_id is None:
             raise BadRequest("Section id is missing")
         else:
-            section=Section.query.filter_by(id=category_id).first()
+            section=Section.query.filter_by(id=section_id).first()
             if section is None:
                 raise NotFound("Section not found")
 
@@ -564,7 +564,7 @@ class ProductAPI(Resource):
             stock_available=stock,
             expiry_date=expiry_date,
             image_name=image_name,
-            category_id=category_id,
+            section_id=section_id,
             created_timestamp=datetime.now(),
             updated_timestamp=datetime.now(),
         )
@@ -612,11 +612,11 @@ class ProductAPI(Resource):
         return make_response(data, 201)
 
     @jwt_required()
-    def put(self, category_id, product_id):
-        if category_id is None:
+    def put(self, section_id, product_id):
+        if section_id is None:
             raise BadRequest("section id is missing")
         else:
-            section=Section.query.filter_by(id=category_id).first()
+            section=Section.query.filter_by(id=section_id).first()
             if section is None:
                 raise NotFound("section not found")
 
@@ -625,7 +625,7 @@ class ProductAPI(Resource):
         else:
             args=product_request_parse.parse_args(strict=True)
             # print(args)
-            product=Product.query.filter_by(category_id=category_id, id=product_id).first()
+            product=Product.query.filter_by(section_id=section_id, id=product_id).first()
             if product is None:
                 raise NotFound("product not found")
             else:
@@ -680,7 +680,7 @@ class ProductAPI(Resource):
                 product.stock = stock
                 product.expiry_date = expiry_date
                 product.image_name = image_name
-                product.category_id = category_id
+                product.section_id = section_id
                 product.updated_timestamp=datetime.now(ZoneInfo('Asia/Kolkata'))
 
                 try:
@@ -695,13 +695,13 @@ class ProductAPI(Resource):
                 return make_response(data, 200)
 
     @jwt_required()
-    def delete(self, category_id, product_id):
-        if category_id is None:
+    def delete(self, section_id, product_id):
+        if section_id is None:
             raise BadRequest("section id is missing")
         if product_id is None:
             raise BadRequest("product id is missing")
         else:
-            product=Product.query.filter_by(category_id=category_id, id=product_id).first()
+            product=Product.query.filter_by(section_id=section_id, id=product_id).first()
             if product is None:
                 raise NotFound("product not found")
             try:

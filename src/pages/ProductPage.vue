@@ -52,7 +52,7 @@ import MainLayout from '@/layouts/MainLayout.vue';
 import LoadingIndicator from '@/components/LoadingIndicator.vue';
 
 const props = defineProps({
-  category_id:{
+  section_id:{
     type: String,
     required: true,
   },
@@ -66,14 +66,14 @@ const product = ref({})
 const loading = ref(false);
 
 const fetchProduct = async() => {
-  if (props.category_id === undefined || props.id === undefined) {
-    console.log('fetchProduct: category_id and(or) id is(are) are not defined(or)passed');
+  if (props.section_id === undefined || props.id === undefined) {
+    console.log('fetchProduct: section_id and(or) id is(are) are not defined(or)passed');
     return;
   }
 
   try {
     loading.value = true;
-    const resp = await axiosClient.get(`/api/product/${props.category_id}/${props.id}`);
+    const resp = await axiosClient.get(`/api/product/${props.section_id}/${props.id}`);
     product.value = resp.data;
     console.log(product.value);
   } catch (err) {

@@ -16,10 +16,10 @@ import UnauthorizedPage from '@/pages/UnauthorizedPage.vue'
 
 import AdminDashboard from '@/components/admin/DashBoard.vue'
 import AdminUserManagement from '@/components/admin/UserManagement.vue'
-import AdminCategoryManagement from '@/components/manager/CategoryManagement.vue'
+import AdminSectionManagement from '@/components/manager/SectionManagement.vue'
 
 import ManagerDashboard from '@/components/manager/DashBoard.vue'
-import ManagerCategoryManagement from '@/components/manager/CategoryManagement.vue'
+import ManagerSectionManagement from '@/components/manager/SectionManagement.vue'
 import ManagerProductManagement from '@/components/manager/ProductManagement.vue'
 
 const routes = [
@@ -65,8 +65,8 @@ const routes = [
       },
       {
         path: 'section',
-        name: 'admincategories',
-        component: AdminCategoryManagement
+        name: 'adminsections',
+        component: AdminSectionManagement
       }
     ],
     meta: {
@@ -88,8 +88,8 @@ const routes = [
       },
       {
         path: 'section',
-        name: 'managercategories',
-        component: ManagerCategoryManagement
+        name: 'managersections',
+        component: ManagerSectionManagement
       },
       {
         path: 'products',

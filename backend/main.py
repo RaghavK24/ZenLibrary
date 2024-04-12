@@ -65,11 +65,11 @@ def invalid_token_callback(msg):
     return make_response('token expired', 401)
 
 
-from application.api import api, UserAPI, CategoryAPI, ProductAPI, OrderAPI
+from application.api import api, UserAPI, SectionAPI, ProductAPI, OrderAPI
 hapi = Api(app)
 hapi.add_resource(UserAPI, "/api/user", "/api/user/<username>")
-hapi.add_resource(CategoryAPI, "/api/section", "/api/section/<int:category_id>")
-hapi.add_resource(ProductAPI, "/api/product", "/api/product/<int:category_id>", "/api/product/<int:category_id>/<int:product_id>")
+hapi.add_resource(SectionAPI, "/api/section", "/api/section/<int:section_id>")
+hapi.add_resource(ProductAPI, "/api/product", "/api/product/<int:section_id>", "/api/product/<int:section_id>/<int:product_id>")
 hapi.add_resource(OrderAPI, "/api/order", "/api/order/<int:id>")
 app.register_blueprint(api, url_prefix="/api")
 app.register_blueprint(routes, url_prefix="/")

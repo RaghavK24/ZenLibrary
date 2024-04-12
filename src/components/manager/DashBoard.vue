@@ -38,7 +38,7 @@
     <div v-else class="row g-2">
       <div class="row col-12 justify-content-left m-auto g-2">
         <div class="col-2 d-flex g-3">
-          <InfoPill :data="categories" />
+          <InfoPill :data="sections" />
         </div>
         <div class="col-2 d-flex g-3">
           <InfoPill :data="products" />
@@ -60,9 +60,9 @@
         </div>
         <div class="col-4">
           <PieChart
-            :title="categoryPieChartTitle"
-            :labels="categoryPieChartLabels"
-            :data="categoryPieChartData"
+            :title="sectionPieChartTitle"
+            :labels="sectionPieChartLabels"
+            :data="sectionPieChartData"
           />
         </div>
         <div class="col-4">
@@ -100,16 +100,16 @@ const ordersBarChartTitle = ref('')
 const ordersBarChartLabels = ref([])
 const ordersBarChartData = ref([])
 
-const categoryPieChartTitle = ref('')
-const categoryPieChartLabels = ref([])
-const categoryPieChartData = ref([])
+const sectionPieChartTitle = ref('')
+const sectionPieChartLabels = ref([])
+const sectionPieChartData = ref([])
 
 const revenueBarChartTitle = ref('')
 const revenueBarChartLabels = ref([])
 const revenueBarChartData = ref([])
 
-const categories = reactive({
-  title: 'Categories',
+const sections = reactive({
+  title: 'Sections',
   icon: 'format-list-bulleted-type',
   color: 'text-secondary',
   count: 0
@@ -176,17 +176,17 @@ const fetchData = async () => {
     data.value = resp.data
     console.log(data.value)
 
-    categories.count = data.value.category
+    sections.count = data.value.section
     products.count = data.value.products
     orders_today.count = data.value.orders_today
     revenue_today.count = '₹' + (data.value.revenue_today ? data.value.revenue_today : '0') + '/-'
 
-    // pie chart data for categories
-    categoryPieChartTitle.value = 'Categories'
-    categoryPieChartLabels.value = data.value.categories.map(function (el) {
+    // pie chart data for sections
+    sectionPieChartTitle.value = 'Sections'
+    sectionPieChartLabels.value = data.value.sections.map(function (el) {
       return el.name
     })
-    categoryPieChartData.value = data.value.categories.map(function (el) {
+    sectionPieChartData.value = data.value.sections.map(function (el) {
       return el.count
     })
 

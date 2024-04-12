@@ -24,7 +24,7 @@ import {
   Tooltip,
   Legend,
   BarController,
-  CategoryScale,
+  SectionScale,
   LinearScale,
   BarElement,
   ArcElement
@@ -35,7 +35,7 @@ ChartJS.register(
   Tooltip,
   Legend,
   BarController,
-  CategoryScale,
+  SectionScale,
   LinearScale,
   BarElement,
   ArcElement
