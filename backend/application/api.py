@@ -15,7 +15,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from .db import db
 from .config import UPLOAD_FOLDER
-from .models import User, Category, Product, Item, Order
+from .models import User, Section, Product, Item, Order
 from .jwt import access
 from flask import current_app as app
 from .cache import cache
@@ -291,21 +291,21 @@ category_request_parse.add_argument("approved", type=inputs.boolean)
 category_request_parse.add_argument("request_type", type=str)
 category_request_parse.add_argument("request_data", type=str)
 class CategoryAPI(Resource):
-    '''Category Object for managing categories'''
+    '''Section Object for managing sections'''
     @jwt_required()
     @cache.cached(timeout=50)
     def get(self, category_id=None):
         if category_id is None:
-            categories = Category.query.all()
-            data = [category.to_dict() for category in categories]
+            sections = Section.query.all()
+            data = [section.to_dict() for section in sections]
             return make_response(data, 200)
         else:
-            category = Category.query.filter_by(id=category_id).one_or_none()
-            if category is None:
-                raise NotFound("category not found")
+            section = Section.query.filter_by(id=category_id).one_or_none()
+            if section is None:
+                raise NotFound("section not found")
             else:
-                # print(category)
-                return make_response(jsonify(category.to_dict()), 200)
+                # print(section)
+                return make_response(jsonify(section.to_dict()), 200)
 
     @jwt_required()
     def post(self):
@@ -328,12 +328,12 @@ class CategoryAPI(Resource):
             raise BadRequest("name not provided")
         name = name.capitalize()
 
-        category = Category.query.filter_by(name=name).first()
-        if category is not None:
-            print("=== category already exists === ")
-            raise BadRequest("category already exists")
+        section = Section.query.filter_by(name=name).first()
+        if section is not None:
+            print("=== section already exists === ")
+            raise BadRequest("section already exists")
 
-        category = Category(
+        section = Section(
             name=name,
             request_type="add",
             request_data=name,
@@ -342,18 +342,18 @@ class CategoryAPI(Resource):
             updated_timestamp=datetime.now(ZoneInfo('Asia/Kolkata')),
         )
 
-        if category is None:
-            raise InternalError(message="error creating category")
+        if section is None:
+            raise InternalError(message="error creating section")
 
         try:
-            db.session.add(category)
+            db.session.add(section)
             cache.clear()
             db.session.commit()
             cache.clear()
         except:
-            raise InternalError(message="error creating category")
+            raise InternalError(message="error creating section")
 
-        return make_response(category.to_dict(), 201)
+        return make_response(section.to_dict(), 201)
 
     @jwt_required()
     def put(self, category_id):
@@ -365,11 +365,11 @@ class CategoryAPI(Resource):
             raise NotFound("user not found")
 
         if category_id is None:
-            raise NotFound("category id is missing")
+            raise NotFound("section id is missing")
 
-        category = Category.query.filter_by(id=category_id).first()
-        if category is None:
-            return NotFound("category not found")
+        section = Section.query.filter_by(id=category_id).first()
+        if section is None:
+            return NotFound("section not found")
         else:
             args = category_request_parse.parse_args(strict=True)
             # print(args)
@@ -385,58 +385,58 @@ class CategoryAPI(Resource):
             approved = args.get("approved", None)
 
             if approved is True and user.role != 'admin':
-                raise BadRequest('only admin can approve categories')
+                raise BadRequest('only admin can approve sections')
 
-            # category.name = name
+            # section.name = name
 
             if user.role == 'admin':
                 if approved is not None:
-                    if category.approved is False:
+                    if section.approved is False:
                         if approved is True:
-                            if category.request_type == 'delete':
-                                return self.delete(category.id)
-                            elif category.request_type == 'add' or category.request_type == 'edit':
-                                category.name = category.request_data
-                                category.approved = True
+                            if section.request_type == 'delete':
+                                return self.delete(section.id)
+                            elif section.request_type == 'add' or section.request_type == 'edit':
+                                section.name = section.request_data
+                                section.approved = True
                             else:
-                                raise BadRequest("category request type is invalid")
+                                raise BadRequest("section request type is invalid")
                         else:
-                            category.name=name
-                            category.approved = True
+                            section.name=name
+                            section.approved = True
                     else:
-                        raise BadRequest("category is already approved")
+                        raise BadRequest("section is already approved")
                 else:
-                    category.name=request_data
-                    category.approved = True
+                    section.name=request_data
+                    section.approved = True
             elif user.role == 'manager':
-                if category.approved is False:
-                    raise BadRequest("category is already in approval stage")
+                if section.approved is False:
+                    raise BadRequest("section is already in approval stage")
                 if request_type == 'edit':
-                    if category.name == request_data:
-                        category.approved = True
+                    if section.name == request_data:
+                        section.approved = True
                     else:
-                        category.request_type = request_type
-                        category.request_data = request_data
-                        category.approved = False
+                        section.request_type = request_type
+                        section.request_data = request_data
+                        section.approved = False
             else:
-                raise AuthorizationError(message="only admin can approve categories")
+                raise AuthorizationError(message="only admin can approve sections")
 
-            category.updated_timestamp = datetime.now(ZoneInfo('Asia/Kolkata'))
+            section.updated_timestamp = datetime.now(ZoneInfo('Asia/Kolkata'))
 
             try:
-                db.session.add(category)
+                db.session.add(section)
                 cache.clear()
                 db.session.commit()
                 cache.clear()
             except:
-                raise InternalError(message="error in updating category")
+                raise InternalError(message="error in updating section")
 
-            return make_response(jsonify(category.to_dict()), 200)
+            return make_response(jsonify(section.to_dict()), 200)
 
     @jwt_required()
     def delete(self, category_id):
         if id is None:
-            raise BadRequest("category id is missing")
+            raise BadRequest("section id is missing")
 
         user_id = get_jwt_identity()
         if user_id is None:
@@ -446,34 +446,34 @@ class CategoryAPI(Resource):
             if user is None:
                 raise NotFound("user not found")
 
-        category = Category.query.filter_by(id=category_id).first()
-        if category is None:
-            raise NotFound(message="category not found")
+        section = Section.query.filter_by(id=category_id).first()
+        if section is None:
+            raise NotFound(message="section not found")
 
         if user.role == 'manager':
-            category.request_type='delete'
-            category.approved=False
+            section.request_type='delete'
+            section.approved=False
             try:
-                db.session.add(category)
+                db.session.add(section)
                 cache.clear()
                 db.session.commit()
                 cache.clear()
             except:
-                raise InternalError(message="error requesting category deletion")
+                raise InternalError(message="error requesting section deletion")
 
-            return f'category {category.name} deletion sent for review successfully', 200
+            return f'section {section.name} deletion sent for review successfully', 200
         elif user.role == 'admin':
             try:
-                db.session.delete(category)
+                db.session.delete(section)
                 cache.clear()
                 db.session.commit()
                 cache.clear()
             except:
-                raise InternalError(message="error deleting category")
+                raise InternalError(message="error deleting section")
         else:
-            raise AuthorizationError(message="only admin can delete categories")
+            raise AuthorizationError(message="only admin can delete sections")
 
-        return f'category {category.name} deleted successfully', 200
+        return f'section {section.name} deleted successfully', 200
 
 
 def valid_date(s):
@@ -499,16 +499,16 @@ class ProductAPI(Resource):
             data = [product.to_dict() for product in products]
             return make_response(data, 200)
         else:
-            category=Category.query.filter_by(id=category_id).first()
-            if category is None:
-                raise NotFound("Category not found")
+            section=Section.query.filter_by(id=category_id).first()
+            if section is None:
+                raise NotFound("Section not found")
 
         if product_id is None:
             products = Product.query.filter_by(category_id=category_id).all()
             data = [product.to_dict() for product in products]
             return make_response(data, 200)
         else:
-            product = Product.query.filter_by(category_id=category.id, id=product_id).first()
+            product = Product.query.filter_by(category_id=section.id, id=product_id).first()
             if product is None:
                 raise NotFound("Product not found")
             else:
@@ -518,11 +518,11 @@ class ProductAPI(Resource):
     @jwt_required()
     def post(self, category_id):
         if category_id is None:
-            raise BadRequest("Category id is missing")
+            raise BadRequest("Section id is missing")
         else:
-            category=Category.query.filter_by(id=category_id).first()
-            if category is None:
-                raise NotFound("Category not found")
+            section=Section.query.filter_by(id=category_id).first()
+            if section is None:
+                raise NotFound("Section not found")
 
         args = product_request_parse.parse_args(strict=True)
         # print(args)
@@ -614,11 +614,11 @@ class ProductAPI(Resource):
     @jwt_required()
     def put(self, category_id, product_id):
         if category_id is None:
-            raise BadRequest("category id is missing")
+            raise BadRequest("section id is missing")
         else:
-            category=Category.query.filter_by(id=category_id).first()
-            if category is None:
-                raise NotFound("category not found")
+            section=Section.query.filter_by(id=category_id).first()
+            if section is None:
+                raise NotFound("section not found")
 
         if product_id is None:
             raise BadRequest("product id is missing")
@@ -697,7 +697,7 @@ class ProductAPI(Resource):
     @jwt_required()
     def delete(self, category_id, product_id):
         if category_id is None:
-            raise BadRequest("category id is missing")
+            raise BadRequest("section id is missing")
         if product_id is None:
             raise BadRequest("product id is missing")
         else:

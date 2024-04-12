@@ -43,7 +43,7 @@ if not os.path.exists(dbfile):
     print("db file: ", dbfile)
     print("==== DB File does not exist, Creating one =====")
     db.create_all()
-    print("==== Creating Admin and Common Categories =====")
+    print("==== Creating Admin and Common Sections =====")
     create_initial_data(db)
 
 jwt = JWTManager(app)
@@ -68,7 +68,7 @@ def invalid_token_callback(msg):
 from application.api import api, UserAPI, CategoryAPI, ProductAPI, OrderAPI
 hapi = Api(app)
 hapi.add_resource(UserAPI, "/api/user", "/api/user/<username>")
-hapi.add_resource(CategoryAPI, "/api/category", "/api/category/<int:category_id>")
+hapi.add_resource(CategoryAPI, "/api/section", "/api/section/<int:category_id>")
 hapi.add_resource(ProductAPI, "/api/product", "/api/product/<int:category_id>", "/api/product/<int:category_id>/<int:product_id>")
 hapi.add_resource(OrderAPI, "/api/order", "/api/order/<int:id>")
 app.register_blueprint(api, url_prefix="/api")

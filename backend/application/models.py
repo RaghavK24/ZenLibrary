@@ -54,9 +54,9 @@ class User(db.Model):
         return self.username
 
 
-class Category(db.Model):
-    '''Category Model'''
-    __tablename__ = "category"
+class Section(db.Model):
+    '''Section Model'''
+    __tablename__ = "section"
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     name = db.Column(db.String(32), unique=True, nullable=False)
     request_type = db.Column(db.String(32))
@@ -67,7 +67,7 @@ class Category(db.Model):
     updated_timestamp = db.Column(
         db.DateTime(timezone=True), nullable=False, default=datetime.now())
 
-    products = db.relationship("Product", backref="category", cascade="all, delete-orphan")
+    products = db.relationship("Product", backref="section", cascade="all, delete-orphan")
 
     def to_dict(self):
         return {
@@ -101,7 +101,7 @@ class Product(db.Model):
         db.DateTime(timezone=True), nullable=False, default=datetime.now())
 
     items = db.relationship("Item", backref="product", cascade="all, delete-orphan")
-    category_id = db.Column(db.Integer, db.ForeignKey("category.id"), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey("section.id"), nullable=False)
 
     def to_dict(self):
         self.image=None
@@ -110,12 +110,12 @@ class Product(db.Model):
             with open(image_file, 'rb') as f:
                 self.image = base64.b64encode(f.read()).decode('utf-8')
         
-        category = Category.query.filter_by(id=self.category_id).first()
+        section = Section.query.filter_by(id=self.category_id).first()
 
         return {
             "id": self.id,
             "name": self.name,
-            "category_name": category.name,
+            "category_name": section.name,
             "description": self.description,
             "unit": self.unit,
             "price": self.price,
@@ -210,9 +210,9 @@ def create_initial_data(db):
     )
     
     category_types = [ "Fruits", "Vegetables", "Grocery", "Dairy", "Bakery", "Meat", "Beverages", "Snacks", "Others"]
-    categories = []
+    sections = []
     for category_type in category_types:
-        category = Category(
+        section = Section(
             name=category_type,
             request_type="GET",
             request_data="",
@@ -220,9 +220,9 @@ def create_initial_data(db):
             created_timestamp=datetime.now(),
             updated_timestamp=datetime.now(),
         )
-        categories.append(category)
+        sections.append(section)
 
-    db.session.add_all(categories)
+    db.session.add_all(sections)
     db.session.add(admin)
     db.session.commit()
 

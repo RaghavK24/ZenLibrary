@@ -10,7 +10,7 @@ from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_r
 from celery.result import AsyncResult
 
 from application.celery_worker import celery
-from application.models import User,Product, Category, Order
+from application.models import User,Product, Section, Order
 from application.jwt import access
 from application.db import db
 from application.cache import cache
@@ -48,12 +48,12 @@ def logout():
 def home():
     '''home route'''
     try:
-        categories = Category.query.filter(Category.approved==True).all()
+        sections = Section.query.filter(Section.approved==True).all()
         products = Product.query.filter(Product.expiry_date >= datetime.now()).all()
     except:
         return make_response(jsonify("error getting products"), 500)
 
-    data = jsonify([category.to_dict() for category in categories], [product.to_dict() for product in products])
+    data = jsonify([section.to_dict() for section in sections], [product.to_dict() for product in products])
     return make_response(data, 200)
 
 @routes.route("/admin", methods=["GET"])
@@ -63,7 +63,7 @@ def home():
 def admin():
     data = {}
     data["users"] = User.query.count()
-    data["category"] = Category.query.count()
+    data["section"] = Section.query.count()
     data["products"] = Product.query.count()
     data["orders_total"] = Order.query.count()
     data["managers"] = User.query.filter_by(role='manager').count()
@@ -80,14 +80,14 @@ def admin():
         orders_data.append({"date":date.date().strftime('%d/%b'), "count": count})
     data["orders"] = orders_data
 
-    # category wise products
+    # section wise products
     category_data = []
-    categories = Category.query.all()
-    for category in categories:
-        category_dict = category.to_dict()
-        category_data.append({'name':category_dict['name'], 'count': len(category.products)})
-        # category_data.append(([category.to_dict(), len(category.products)]))
-    data["categories"] = category_data
+    sections = Section.query.all()
+    for section in sections:
+        category_dict = section.to_dict()
+        category_data.append({'name':category_dict['name'], 'count': len(section.products)})
+        # category_data.append(([section.to_dict(), len(section.products)]))
+    data["sections"] = category_data
 
     #Revenue from past 7 days
     revenue_data = []
@@ -108,7 +108,7 @@ def admin():
 @cache.memoize(timeout=50)
 def manager():
     data = {}
-    data["category"] = Category.query.count()
+    data["section"] = Section.query.count()
     data["products"] = Product.query.count()
     # data["revenue_today"] = 0
     data["revenue_today"] = Order.query.filter(func.date(Order.created_timestamp) == datetime.today().date()).with_entities(func.sum(Order.total_amount)).scalar()
@@ -122,14 +122,14 @@ def manager():
         orders_data.append({"date":date.date().strftime('%d/%b'), "count": count})
     data["orders"] = orders_data
 
-    # category wise products
+    # section wise products
     category_data = []
-    categories = Category.query.all()
-    for category in categories:
-        category_dict = category.to_dict()
-        category_data.append({'name':category_dict['name'], 'count': len(category.products)})
-        # category_data.append(([category.to_dict(), len(category.products)]))
-    data["categories"] = category_data
+    sections = Section.query.all()
+    for section in sections:
+        category_dict = section.to_dict()
+        category_data.append({'name':category_dict['name'], 'count': len(section.products)})
+        # category_data.append(([section.to_dict(), len(section.products)]))
+    data["sections"] = category_data
 
     #Revenue from past 7 days
     revenue_data = []
@@ -186,16 +186,16 @@ def search():
         if query is None:
             return make_response(jsonify("empty search"), 400)
 
-        categories = Category.query.filter(
-            and_(Category.approved == True , Category.name.ilike("%" + query + "%"))
+        sections = Section.query.filter(
+            and_(Section.approved == True , Section.name.ilike("%" + query + "%"))
             ).all()
 
         category_products = []
-        print(categories)
-        for category in categories:
-            category_products.extend([product for product in category.products if product.expiry_date >= datetime.now()])
+        print(sections)
+        for section in sections:
+            category_products.extend([product for product in section.products if product.expiry_date >= datetime.now()])
             print(category_products)
-            # category_products.extend(filter( lambda x: x.expiry_date >= datetime.now(), categories.products))
+            # category_products.extend(filter( lambda x: x.expiry_date >= datetime.now(), sections.products))
 
         products = Product.query.filter(
             and_(Product.expiry_date >= datetime.now() ,

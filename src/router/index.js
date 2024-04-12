@@ -64,7 +64,7 @@ const routes = [
         component: AdminUserManagement
       },
       {
-        path: 'category',
+        path: 'section',
         name: 'admincategories',
         component: AdminCategoryManagement
       }
@@ -87,7 +87,7 @@ const routes = [
         component: ManagerDashboard
       },
       {
-        path: 'category',
+        path: 'section',
         name: 'managercategories',
         component: ManagerCategoryManagement
       },
